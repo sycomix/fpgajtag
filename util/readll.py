@@ -57,22 +57,22 @@ for thisline in lines:
     itemtype = iteml[4]
     if itemtype.startswith('Ram='):
         continue
-    if itemtype == 'Latch=BQ':
-        adjustment = 25
-    if itemtype == 'Latch=CQ':
-        adjustment = 30
-    if itemtype == 'Latch=DQ':
-        adjustment = 55
     if itemtype == 'Latch=AMUX':
         adjustment = 1
-    if itemtype == 'Latch=BMUX':
+    elif itemtype == 'Latch=BMUX':
         adjustment = 19
-    if itemtype == 'Latch=CMUX':
+    elif itemtype == 'Latch=BQ':
+        adjustment = 25
+    elif itemtype == 'Latch=CMUX':
         adjustment = 38
-    if itemtype == 'Latch=DMUX':
+    elif itemtype == 'Latch=CQ':
+        adjustment = 30
+    elif itemtype == 'Latch=DMUX':
         adjustment = 48
+    elif itemtype == 'Latch=DQ':
+        adjustment = 55
     if not itemtype.endswith('MUX'):
-        itemtype = itemtype[:6] + '   ' + itemtype[6:]
+        itemtype = f'{itemtype[:6]}   {itemtype[6:]}'
     if not topoffset.get(itemtype):
         topoffset[itemtype] = {}
     if not topoffset[itemtype].get(frameoffset):
@@ -84,14 +84,10 @@ for thisline in lines:
     if itemtype not in topref[ftemp]:
         topref[ftemp].append(itemtype)
     adjoff = bitoff - coordx - 64 * coordy - adjustment
-    if maxx < coordx:
-        maxx = coordx
-    if maxy < coordy:
-        maxy = coordy
-    if minx > coordx:
-        minx = coordx
-    if miny > coordy:
-        miny = coordy
+    maxx = max(maxx, coordx)
+    maxy = max(maxy, coordy)
+    minx = min(minx, coordx)
+    miny = min(miny, coordy)
     #print('index', '%4d_%4d_%5d' % (coordy, coordx, frameoffset))
     toplist['%4d_%4d_%5d' % (coordx, coordy, frameoffset)] = [ coordx, coordy, bitoff - frameoffset]
 print('min', minx, miny, 'max', maxx, maxy)
@@ -117,10 +113,10 @@ for key, value in sorted(toplist.items()):
 printval(starty, lasty, lastval)
 print(outstring)
 for key, value in sorted(topoffset.items()):
-    outstring = key + ': '
+    outstring = f'{key}: '
     for vkey, vvalue in sorted(value.items()):
         if vvalue != 1:
-            outstring = outstring + ' ' + str(vkey) + '/' + str(vvalue)
+            outstring = f'{outstring} {str(vkey)}/{str(vvalue)}'
     print(outstring)
 for key, value in sorted(topref.items()):
     print('ref', key, value)
